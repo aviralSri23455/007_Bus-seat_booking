@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .bus-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .deck-container {
+            display: flex;
+            overflow-x: scroll;
+        }
+
+        .deck {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .seat {
+            width: 40px;
+            height: 40px;
+            margin: 5px;
+            background-color: #a5d6a7;
+            text-align: center;
+            line-height: 40px;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        .seat.selected {
+            background-color: #f56b3a;
+        }
+
+        .highlighted {
+            border: 2px solid #f56b3a;
+        }
+
+        .deck-label {
+            font-weight: bold;
+            margin: 5px;
+            cursor: pointer;
+            color: blue;
+        }
+
+        .deck-divider {
+            width: 2px;
+            height: 100%;
+            background-color: #000;
+            margin: 0 10px;
+        }
+
+        .description-sidebar {
+            width: 200px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            position: sticky;
+            top: 0;
+        }
+
+        .deck-description {
+            display: none;
+        }
+
+        .details {
+            padding: 10px;
+        }
+
+        .details-title {
+            font-weight: bold;
+        }
+
+        .price-label {
+            font-size: 12px;
+            display: none;
+            position: absolute;
+            background-color: #008CFF;
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
+            z-index: 1;
+        }
+
+        .seat:hover .price-label {
+            display: block;
+        }
+
+        .add-to-booking {
+            background-color: #008CFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        .booking-details {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bus Seat Booking</h1>
+    <div class="bus-container">
+        <div class="description-sidebar">
+            <h2>Seat Types</h2>
+            <p>1: Standard Seat - $50</p>
+            <p>2: Premium Seat - $75</p>
+            <p>3: VIP Seat - $100</p>
+            <!-- Add more seat types and descriptions here -->
+        </div>
+        <div class="deck-container">
+            <div class="deck">
+                <div class="deck-label" onclick="toggleDeckDescription('lower-deck')">Lower Deck</div>
+                <div class="seat" onclick="toggleSeat(this, 'Lower Deck', 1, 50)">1</div>
+                <div class="seat" onclick="toggleSeat(this, 'Lower Deck', 2, 75)">2</div>
+                <div class="seat" onclick="toggleSeat(this, 'Lower Deck', 3, 100)">3</div>
+                <div class="seat" onclick="toggleSeat(this, 'Lower Deck', 4, 50)">4</div>
+                <!-- Add more seats on the lower deck -->
+                <div class="deck-description" id="lower-deck">
+                    <h2>Lower Deck Seat Types</h2>
+                    <p>1: Standard Seat - $50</p>
+                    <p>2: Premium Seat - $75</p>
+                    <p>3: VIP Seat - $100</p>
+                    <!-- Add more seat types and descriptions for the lower deck here -->
+                </div>
+            </div>
+            <div class="deck-divider"></div>
+            <div class="deck">
+                <div class="deck-label" onclick="toggleDeckDescription('upper-deck')">Upper Deck</div>
+                <div class="seat" onclick="toggleSeat(this, 'Upper Deck', 5, 50)">5</div>
+                <div class="seat highlighted" onclick="toggleSeat(this, 'Upper Deck', 6, 75)">6</div>
+                <div class="seat" onclick="toggleSeat(this, 'Upper Deck', 7, 100)">7</div>
+                <div class="seat" onclick="toggleSeat(this, 'Upper Deck', 8, 50)">8</div>
+                <!-- Add more seats on the upper deck -->
+                <div class="deck-description" id="upper-deck">
+                    <h2>Upper Deck Seat Types</h2>
+                    <p>5: Standard Seat - $50</p>
+                    <p>6: Premium Seat - $75</p>
+                    <p>7: VIP Seat - $100</p>
+                    <!-- Add more seat types and descriptions for the upper deck here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="details">
+        <h2 class="details-title">Booking Details</h2>
+        <div id="booking-details" class="booking-details"></div>
+        <button class="add-to-booking" onclick="addToBooking()">Add to Booking</button>
+    </div>
+
+    <script>
+        let selectedSeats = [];
+
+        function toggleSeat(seat, deck, seatNumber, price) {
+            seat.classList.toggle('selected');
+
+            const seatIndex = selectedSeats.findIndex((selectedSeat) => selectedSeat.seatNumber === seatNumber);
+
+            if (seatIndex !== -1) {
+                selectedSeats.splice(seatIndex, 1);
+            } else {
+                selectedSeats.push({ deck, seatNumber, price });
+            }
+
+            updateBookingDetails();
+        }
+
+        function updateBookingDetails() {
+            const bookingDetails = document.getElementById('booking-details');
+            bookingDetails.innerHTML = '';
+
+            if (selectedSeats.length === 0) {
+                bookingDetails.innerHTML = '<p>No seats selected</p>';
+            } else {
+                selectedSeats.forEach((seat) => {
+                    const deck = seat.deck;
+                    const seatNumber = seat.seatNumber;
+                    const price = seat.price;
+
+                    const details = document.createElement('div');
+                    details.innerHTML = `Deck: ${deck}, Seat: ${seatNumber}, Price: $${price}`;
+                    bookingDetails.appendChild(details);
+                });
+            }
+        }
+
+        function toggleDeckDescription(deckId) {
+            const deckDescriptions = document.querySelectorAll('.deck-description');
+            deckDescriptions.forEach(function(deckDescription) {
+                deckDescription.style.display = 'none';
+            });
+
+            const targetDeck = document.getElementById(deckId);
+            targetDeck.style.display = 'block';
+        }
+
+        function addToBooking() {
+            const totalCost = selectedSeats.reduce((acc, seat) => acc + seat.price, 0);
+            alert(`Added to booking. Total cost: $${totalCost}`);
+        }
+    </script>
+</body>
+</html>
